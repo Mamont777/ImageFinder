@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastContainer, Slide, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Container } from './App.styled';
@@ -19,34 +19,33 @@ export function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchImages = useCallback(async (page, query) => {
-    try {
-      setIsLoading(true);
-      const { images, totalHits } = await API.loadImage(query, page);
-
-      if (images.length === 0) {
-        return toast.warning(
-          "Sorry, we can't find anything for your request. Please, enter another request"
-        );
-      }
-      setItems(prevItems => [...prevItems, ...images]);
-      setTotalHits(totalHits);
-      if (totalHits && page === 1) {
-        toast.success(`Found ${totalHits} images`);
-      }
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     if (!query) {
       return;
     }
+    const fetchImages = async (page, query) => {
+      try {
+        setIsLoading(true);
+        const { images, totalHits } = await API.loadImage(query, page);
+
+        if (images.length === 0) {
+          return toast.warning(
+            "Sorry, we can't find anything for your request. Please, enter another request"
+          );
+        }
+        setItems(prevItems => [...prevItems, ...images]);
+        setTotalHits(totalHits);
+        if (totalHits && page === 1) {
+          toast.success(`Found ${totalHits} images`);
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchImages(page, query);
-  }, [page, query, fetchImages]);
+  }, [page, query]);
 
   const toggleModal = (url = '') => {
     setLargeImageURL(url);
