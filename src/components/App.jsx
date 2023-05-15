@@ -20,9 +20,10 @@ export function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (query !== '') {
-      fetchImages(page, query);
+    if (!query) {
+      return;
     }
+    fetchImages(page, query);
   }, [page, query]);
 
   const toggleModal = (url = '') => {
@@ -52,7 +53,7 @@ export function App() {
       }
       setItems(prevItems => [...prevItems, ...images]);
       setTotalHits(totalHits);
-      if (totalHits) {
+      if (totalHits && page === 1) {
         toast.success(`Found ${totalHits} images`);
       }
     } catch (error) {
