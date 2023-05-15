@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ToastContainer, Slide, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Container } from './App.styled';
@@ -19,29 +19,7 @@ export function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (!query) {
-      return;
-    }
-    fetchImages(page, query);
-  }, [page, query]);
-
-  const toggleModal = (url = '') => {
-    setLargeImageURL(url);
-    setIsModalOpen(!isModalOpen);
-  };
-
-  const handleSubmit = query => {
-    setQuery(query);
-    setPage(1);
-    setItems([]);
-  };
-
-  const handleLoadMore = () => {
-    setPage(prevPage => prevPage + 1);
-  };
-
-  const fetchImages = async (page, query) => {
+  const fetchImages = useCallback(async (page, query) => {
     try {
       setIsLoading(true);
       const { images, totalHits } = await API.loadImage(query, page);
@@ -61,6 +39,28 @@ export function App() {
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    if (!query) {
+      return;
+    }
+    fetchImages(page, query);
+  }, [page, query, fetchImages]);
+
+  const toggleModal = (url = '') => {
+    setLargeImageURL(url);
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const handleSubmit = query => {
+    setQuery(query);
+    setPage(1);
+    setItems([]);
+  };
+
+  const handleLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
   return (
